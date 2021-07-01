@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:teams_clone/models/user.dart';
 import 'package:teams_clone/utils/utilities.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
+  FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
   final googleSignIn = GoogleSignIn();
 
   bool _isSigningIn = false;
@@ -19,7 +22,6 @@ class GoogleSignInProvider extends ChangeNotifier {
     _isSigningIn = isSigningIn;
     notifyListeners();
   }
-
 
   Future login() async {
     isSigningIn = true;
@@ -38,20 +40,52 @@ class GoogleSignInProvider extends ChangeNotifier {
 
       await FirebaseAuth.instance.signInWithCredential(credential);
 
+      var currUser = FirebaseAuth.instance.currentUser;
+      print('ID: ${currUser!.uid}');
+      // firestoreInstance
+      //     .collection("users")
+      //     .where('email', isEqualTo: currUser!.email)
+      //     .get()
+      //     .then((value){
+      //       if(value.docs.length ==0) {
+      //         firestoreInstance.collection("users").doc(currUser!.uid).set(
+      //             {
+      //               "name" : currUser.displayName,
+      //               "email" : currUser.email,
+      //               "username" : Utils.getUsername(currUser.email),
+      //               "profilePhotoURL" : currUser.photoURL,
+      //             }, SetOptions(merge: true)).then((_){
+      //           print("success!");
+      //         });
+      //       }
+      // });
+
+      await firestoreInstance.collection("users").doc(currUser.uid).set({
+        "uid": currUser.uid,
+        "name": currUser.displayName,
+        "email": currUser.email,
+        "username": Utils.getUsername(currUser.email),
+        "profilePhotoURL": currUser.photoURL,
+      }, SetOptions(merge: true)).then((_) {
+        print("success!");
+      });
+
       isSigningIn = false;
     }
+  }
 
-    // final currentUser = FirebaseAuth.instance.currentUser;
-    //
-    // String? username = Utils.getUsername(currentUser!.email);
-    // Userm u = Userm(
-    //   uid: currentUser!.uid,
-    //   email: currentUser.email,
-    //   name: currentUser.displayName,
-    //   profilePhoto: currentUser.photoURL,
-    //   username: username
-    // );
+  Future fetchAllUsers(User currUser) async {
+    List userList = [];
+    QuerySnapshot querySnapshot =
+        await firestoreInstance.collection("users").get();
+    print(querySnapshot.docs.length);
 
+    for (var i = 0; i < querySnapshot.docs.length; i++) {
+      if (querySnapshot.docs[i].id != currUser.uid) {
+        userList.add(querySnapshot.docs[i].data());
+      }
+    }
+    return userList;
   }
 
   void logout() async {

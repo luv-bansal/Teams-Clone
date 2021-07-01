@@ -4,7 +4,7 @@ import 'package:teams_clone/services/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'auth_screen.dart';
-
+import 'homePageView.dart';
 class Wrapper extends StatelessWidget {
   const Wrapper({Key? key}) : super(key: key);
 
@@ -21,7 +21,7 @@ class Wrapper extends StatelessWidget {
             if (provider.isSigningIn) {
               return buildLoading();
             } else if (snapshot.hasData) {
-              return HomeScreen();
+              return HomePageView();
             } else {
               return AuthScreen();
             }

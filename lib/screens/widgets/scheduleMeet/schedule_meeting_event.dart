@@ -231,10 +231,12 @@ class _ScheduleMeetingEventState extends State<ScheduleMeetingEvent> {
     final isvalid =  _formKey.currentState!.validate();
     if(isvalid){
       final event = Event(title: titleControler.text, discription: 'discription', to: toDate, from: fromDate,  );
-      print(titleControler.text);
+ 
       final provider = Provider.of<EventProvider>(context, listen: false);
+      setState(() {
+        provider.addEvent(event);
+      });
 
-      provider.addEvent(event);
       Navigator.of(context).pop();
     }
   }

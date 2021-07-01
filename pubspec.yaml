@@ -31,7 +31,8 @@ dependencies:
   # google sign in
   firebase_auth: ^1.4.1
   google_sign_in: ^5.0.4
-
+  cloud_firestore: ^2.2.2
+  firebase_core: ^1.3.0
   # calender
   syncfusion_flutter_calendar: ^19.1.69
   syncfusion_flutter_core: ^19.1.69

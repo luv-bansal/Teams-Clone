@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 class Utils {
   static String getUsername(String? email) {
 
-    return "live:${email!.split('@')[0]}";
+    return "${email!.split('@')[0]}";
 
   }
 }
@@ -23,6 +23,8 @@ String toTimeFunc(DateTime dateTime){
 }
 
 Color color = Color(0xff37A7FF);
+Color blackColor = Color(0xff19191b);
+Color onlineDotColor = Color(0xff46dc64);
 
 BoxDecoration buttonDecoration = BoxDecoration(
   gradient: LinearGradient(
