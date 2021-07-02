@@ -17,7 +17,7 @@ class EventProvider extends ChangeNotifier {
 
   void setDate(DateTime date) => _selectedDate = date;
 
-  List<Event> get eventsOfSelectedDate => _events;
+  Future<List<Event>> get eventsOfSelectedDate async => await getEvents();
 
   void addEvent(Event event) async {
     await firestoreInstance

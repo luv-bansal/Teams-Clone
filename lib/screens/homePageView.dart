@@ -61,7 +61,7 @@ class _HomePageViewState extends State<HomePageView> {
                         ? color
                         : Colors.grey),
                 title: Text(
-                  "Chats",
+                  "Home",
                   style: TextStyle(
                       fontSize: _labelFontSize,
                       color: (_page == 0)
@@ -89,7 +89,7 @@ class _HomePageViewState extends State<HomePageView> {
                         ? color
                         : Colors.grey),
                 title: Text(
-                  "Chats",
+                  "Call logs",
                   style: TextStyle(
                       fontSize: _labelFontSize,
                       color: (_page == 2)

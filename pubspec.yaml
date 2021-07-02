@@ -42,8 +42,15 @@ dependencies:
 
   font_awesome_flutter: ^8.10.0
   shimmer: ^2.0.0
+
+  # emoji
+  emoji_picker: ^0.1.0
+
+
   agora_rtc_engine: ^4.0.2
   permission_handler: ^8.1.1
+
+
   random_string: ^2.1.0
   share: ^2.0.4
 

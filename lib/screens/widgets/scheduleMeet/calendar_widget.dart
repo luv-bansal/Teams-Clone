@@ -55,7 +55,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                   provider.setDate(details.date!);
                   showModalBottomSheet(
                       context: context,
-                      builder: (context) => ShowDailyMeeting());
+                      builder: (context) => ShowDailyMeeting(events));
                 },
               )))),
       floatingActionButton: FloatingActionButton(

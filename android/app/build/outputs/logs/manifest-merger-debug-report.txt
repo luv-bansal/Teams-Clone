@@ -8,6 +8,8 @@ MERGED from C:\Users\bansa\Documents\teams_clone\android\app\src\main\AndroidMan
 MERGED from [:firebase_auth] C:\Users\bansa\Documents\teams_clone\build\firebase_auth\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-15:12
 MERGED from [:cloud_firestore] C:\Users\bansa\Documents\teams_clone\build\cloud_firestore\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-15:12
 MERGED from [:firebase_core] C:\Users\bansa\Documents\teams_clone\build\firebase_core\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-15:12
+MERGED from [:emoji_picker] C:\Users\bansa\Documents\teams_clone\build\emoji_picker\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-7:12
+MERGED from [:shared_preferences] C:\Users\bansa\Documents\teams_clone\build\shared_preferences\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-7:12
 MERGED from [:agora_rtc_engine] C:\Users\bansa\Documents\teams_clone\build\agora_rtc_engine\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-23:12
 MERGED from [:share] C:\Users\bansa\Documents\teams_clone\build\share\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-19:12
 MERGED from [:google_sign_in] C:\Users\bansa\Documents\teams_clone\build\google_sign_in\intermediates\library_manifest\debug\AndroidManifest.xml:2:1-9:12
@@ -188,6 +190,10 @@ MERGED from [:cloud_firestore] C:\Users\bansa\Documents\teams_clone\build\cloud_
 MERGED from [:cloud_firestore] C:\Users\bansa\Documents\teams_clone\build\cloud_firestore\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
 MERGED from [:firebase_core] C:\Users\bansa\Documents\teams_clone\build\firebase_core\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
 MERGED from [:firebase_core] C:\Users\bansa\Documents\teams_clone\build\firebase_core\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
+MERGED from [:emoji_picker] C:\Users\bansa\Documents\teams_clone\build\emoji_picker\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
+MERGED from [:emoji_picker] C:\Users\bansa\Documents\teams_clone\build\emoji_picker\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
+MERGED from [:shared_preferences] C:\Users\bansa\Documents\teams_clone\build\shared_preferences\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
+MERGED from [:shared_preferences] C:\Users\bansa\Documents\teams_clone\build\shared_preferences\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44
 MERGED from [:agora_rtc_engine] C:\Users\bansa\Documents\teams_clone\build\agora_rtc_engine\intermediates\library_manifest\debug\AndroidManifest.xml:6:5-8:41
 MERGED from [:agora_rtc_engine] C:\Users\bansa\Documents\teams_clone\build\agora_rtc_engine\intermediates\library_manifest\debug\AndroidManifest.xml:6:5-8:41
 MERGED from [:share] C:\Users\bansa\Documents\teams_clone\build\share\intermediates\library_manifest\debug\AndroidManifest.xml:5:5-44

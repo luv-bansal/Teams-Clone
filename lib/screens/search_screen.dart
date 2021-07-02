@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:teams_clone/screens/chatScreens/chat_screen.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:teams_clone/services/google_sign_in.dart';
 
@@ -23,7 +24,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
     googleSignInProvider.fetchAllUsers(currUser!).then((list) {
       setState(() {
-       
         userList = list;
       });
     });
@@ -36,7 +36,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
           backgroundColor: color,
           leading: IconButton(
-            icon: Icon(Icons.backpack),
+            icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context),
           ),
           bottom: PreferredSize(
@@ -84,11 +84,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   //doubt
   buildSuggestions(String query) {
-   
     final List suggestionList = query.isEmpty
         ? []
         : userList.where((user) {
-        
             String _getUsername = user['username'].toLowerCase();
             String _query = query.toLowerCase();
             String _getName = user['name'].toLowerCase();
@@ -106,7 +104,11 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: ((context, index) {
         var uid = suggestionList[index]['uid'];
         return ListTile(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return ChatScreen(receiver : suggestionList[index]);
+            }));
+          },
           leading: CircleAvatar(
             backgroundImage:
                 NetworkImage(suggestionList[index]['profilePhotoURL']),
