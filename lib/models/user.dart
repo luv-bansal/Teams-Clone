@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Userm {
   String? uid;
   String? name;
@@ -17,15 +19,12 @@ class Userm {
     this.profilePhoto,
   });
 
-  Map toMap(Userm user) {
+  Map toMap(User user) {
     var data = Map<String, dynamic>();
     data['uid'] = user.uid;
-    data['name'] = user.name;
+    data['name'] = user.displayName;
     data['email'] = user.email;
-    data['username'] = user.username;
-    data["status"] = user.status;
-    data["state"] = user.state;
-    data["profile_photo"] = user.profilePhoto;
+    data["profile_photo"] = user.photoURL;
     return data;
   }
 

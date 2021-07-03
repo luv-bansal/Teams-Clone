@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:teams_clone/models/event.dart';
+import 'package:teams_clone/screens/loading.dart';
 import 'package:teams_clone/screens/widgets/create_meeting.dart';
 import 'package:teams_clone/services/calendar_event_provider.dart';
 import 'package:teams_clone/services/google_sign_in.dart';
@@ -19,18 +20,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
   List<Event> events = [];
+  bool loading = true;
   @override
   Widget build(BuildContext context) {
-
     Provider.of<EventProvider>(context).deletePreviosMeetings();
     Provider.of<EventProvider>(context).getEvents().then((value) {
       setState(() {
         events = value;
+        loading = false;
       });
     });
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
       backgroundColor: blackColor,
       appBar: AppBar(
         titleSpacing: 10,
@@ -55,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircleAvatar(
                 radius: 20,
                 backgroundImage: NetworkImage(currentUser!.photoURL ??
-                    'https://pngtree.com/freepng/avatar-icon-profile-icon-member-login-vector-isolated_5247852.html'),
+                    'https://www.esm.rochester.edu/uploads/NoPhotoAvailable.jpg'),
               ),
             ),
           )
@@ -122,14 +124,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          events.length > 0 ? Container(
-            margin: EdgeInsets.only(left: 14, top: 8),
-            alignment: Alignment.centerLeft,
-            child: Text("Meetings",
-             style: TextStyle( fontSize: 20,
-              fontWeight: FontWeight.bold,
-               color: Colors.white),
-               )) : Container(),
+          events.length > 0
+              ? Container(
+                  margin: EdgeInsets.only(left: 14, top: 8),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Meetings",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ))
+              : Container(),
           MeetingNotification(events),
           // ListView.builder(itemCount: events.length, itemBuilder: (context, index){
           //   return ListTile(
@@ -167,9 +173,13 @@ class MeetingNotification extends StatelessWidget {
             Icon(
               Icons.calendar_today,
               color: Colors.white,
-              ),
-            Text(events[0].title , style: TextStyle(fontWeight: FontWeight.bold),),
-            Text('${events[0].to}', style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+            Text(
+              events[0].title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text('${events[0].to}',
+                style: TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
       );
@@ -188,9 +198,11 @@ class MeetingNotification extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   color: Colors.white,
-                  ),
-                Text(events[0].title, style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('${events[0].to}', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Text(events[0].title,
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('${events[0].to}',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -206,7 +218,7 @@ class MeetingNotification extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   color: Colors.white,
-                  ),
+                ),
                 Text(events[1].title),
                 Text('${events[1].to}'),
               ],

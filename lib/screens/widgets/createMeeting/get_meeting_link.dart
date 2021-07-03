@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:teams_clone/utils/utilities.dart';
-import 'package:random_string/random_string.dart';
 import 'package:share/share.dart';
 
 class GetMeetingLink extends StatelessWidget {
@@ -15,7 +14,7 @@ class GetMeetingLink extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white70),),
       onTap: () async {
         Navigator.pop(context);
-        meeting_code = randomAlpha(10);
+        meeting_code = getRandomString(10);
         await createMeetingCode(context);
       },
     );
@@ -66,7 +65,7 @@ class GetMeetingLink extends StatelessWidget {
         actions: [
           GestureDetector(
               onTap: () async {
-                await Share.share(meeting_code);
+                await Share.share( 'Join meeting using given meeting code /n' + meeting_code);
               },
               child: Container(
                   padding: EdgeInsets.all(15),

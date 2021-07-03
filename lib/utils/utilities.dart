@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -40,3 +42,10 @@ BoxDecoration buttonDecoration = BoxDecoration(
       LinearGradient(colors: [Color(0xff37A7FF), Colors.lightBlue.shade300]),
   borderRadius: BorderRadius.all(Radius.circular(18)),
 );
+
+
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+Random _rnd = Random();
+
+String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));

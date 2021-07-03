@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams_clone/models/message.dart';
 import 'package:teams_clone/services/chat_methods.dart';
+import 'package:teams_clone/utils/call_utilities.dart';
 import 'package:teams_clone/utils/utilities.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -56,7 +57,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         title: Text(widget.receiver['name']),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
+          IconButton(
+              onPressed: () {
+                CallUtils.dial(from: sender!, to: widget.receiver, context: context);
+              },
+              icon: Icon(Icons.video_call)),
         ],
       ),
       body: Column(
@@ -72,6 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
   emojiWidgit() {
     return EmojiPicker(
       bgColor: separatorColor,
@@ -79,7 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
       rows: 5,
       columns: 8,
       onEmojiSelected: (emoji, catagoty) {
-                setState(() {
+        setState(() {
           isWriting = true;
         });
 
@@ -253,7 +259,8 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 5,
           ),
           Expanded(
-              child: Stack( alignment: AlignmentDirectional.bottomEnd ,children: [
+              child:
+                  Stack(alignment: AlignmentDirectional.bottomEnd, children: [
             TextField(
               focusNode: textFieldFocus,
               onChanged: (val) {
@@ -311,8 +318,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       onPressed: () {
                         sendMessage();
                       },
-                  icon: Icon(Icons.send)
-                  ),
+                      icon: Icon(Icons.send)),
                 )
               : Container()
         ],
@@ -335,3 +341,5 @@ class _ChatScreenState extends State<ChatScreen> {
     chatMethods.addMessageToDb(message);
   }
 }
+
+

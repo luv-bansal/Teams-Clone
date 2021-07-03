@@ -51,13 +51,18 @@ dependencies:
   permission_handler: ^8.1.1
 
 
-  random_string: ^2.1.0
   share: ^2.0.4
+  
+  # cache image
+  cached_network_image: ^3.0.0
 
   # for date and time
   intl: ^0.17.0
 
   http: ^0.13.3
+
+  #switch
+  toggle_switch: ^1.2.0
 
 dev_dependencies:
   flutter_test:

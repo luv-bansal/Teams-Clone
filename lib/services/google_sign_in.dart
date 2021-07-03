@@ -79,7 +79,6 @@ class GoogleSignInProvider extends ChangeNotifier {
     QuerySnapshot querySnapshot =
         await firestoreInstance.collection("users").get();
     print(querySnapshot.docs.length);
-
     for (var i = 0; i < querySnapshot.docs.length; i++) {
       if (querySnapshot.docs[i].id != currUser.uid) {
         userList.add(querySnapshot.docs[i].data());
