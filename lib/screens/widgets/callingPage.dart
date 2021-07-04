@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams_clone/screens/meetings/allMembers.dart';
+import 'package:teams_clone/screens/meetings/meeting_chat.dart';
+import 'package:teams_clone/services/meeting_chat_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -12,8 +14,12 @@ class CallPage extends StatefulWidget {
   final String channelName;
   final int mic;
   final int videoOn;
+  final User user;
   const CallPage(
-      {required this.channelName, required this.mic, required this.videoOn});
+      {required this.channelName,
+      required this.mic,
+      required this.videoOn,
+      required this.user});
 
   @override
   _CallPageState createState() => _CallPageState();
@@ -27,6 +33,9 @@ class _CallPageState extends State<CallPage> {
   bool videoMute = false;
   bool muted = false;
 
+  bool allRemoteMuted = false;
+  bool allRemoteVideoMuted = false;
+
   static final _users = <int>[];
   final _infoStrings = <String>[];
   static final _usersInfo = [];
@@ -35,8 +44,11 @@ class _CallPageState extends State<CallPage> {
 
   User? currUser = FirebaseAuth.instance.currentUser;
 
+  MeetingChatMethods meetingChatMethods = MeetingChatMethods();
+
   @override
   void dispose() {
+    meetingChatMethods.deleteChat(widget.channelName);
     // clear users
     _users.clear();
     // destroy sdk
@@ -129,6 +141,7 @@ class _CallPageState extends State<CallPage> {
       leaveChannel: (stats) {
         setState(() {
           _infoStrings.add('onLeaveChannel');
+          meetingChatMethods.deleteChat(widget.channelName);
           _users.clear();
         });
       },
@@ -333,18 +346,6 @@ class _CallPageState extends State<CallPage> {
             padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
-            onPressed: _onToggleVideoMute,
-            child: Icon(
-              videoMute ? Icons.videocam_off : Icons.video_call_rounded,
-              color: videoMute ? Colors.white : Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: videoMute ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          ),
-          RawMaterialButton(
             onPressed: () => _onCallEnd(context),
             child: Icon(
               Icons.call_end,
@@ -357,6 +358,18 @@ class _CallPageState extends State<CallPage> {
             padding: const EdgeInsets.all(15.0),
           ),
           RawMaterialButton(
+            onPressed: _onToggleVideoMute,
+            child: Icon(
+              videoMute ? Icons.videocam_off : Icons.video_call_rounded,
+              color: videoMute ? Colors.white : Colors.blueAccent,
+              size: 20.0,
+            ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: videoMute ? Colors.blueAccent : Colors.white,
+            padding: const EdgeInsets.all(12.0),
+          ),
+          RawMaterialButton(
             onPressed: _onSwitchCamera,
             child: Icon(
               Icons.switch_camera,
@@ -367,7 +380,19 @@ class _CallPageState extends State<CallPage> {
             elevation: 2.0,
             fillColor: Colors.white,
             padding: const EdgeInsets.all(12.0),
-          )
+          ),
+          RawMaterialButton(
+            onPressed: () => addMediaModal(context),
+            child: Icon(
+              Icons.more,
+              color: Colors.white,
+              size: 35.0,
+            ),
+            shape: CircleBorder(),
+            elevation: 2.0,
+            fillColor: Colors.black26,
+            padding: const EdgeInsets.all(15.0),
+          ),
         ],
       ),
     );
@@ -383,8 +408,8 @@ class _CallPageState extends State<CallPage> {
   void _onToggleVideoMute() {
     setState(() {
       videoMute = !videoMute;
-      videoMute ? _engine.disableVideo() : _engine.enableVideo();
     });
+     _engine.enableLocalVideo(!videoMute);
   }
 
   void _onCallEnd(BuildContext context) {
@@ -393,5 +418,92 @@ class _CallPageState extends State<CallPage> {
 
   void _onSwitchCamera() {
     _engine.switchCamera();
+  }
+
+  void _muteAllRemoteAudio() {
+    setState(() {
+      allRemoteMuted = !allRemoteMuted;
+    });
+    _engine.muteAllRemoteAudioStreams(allRemoteMuted);
+  }
+
+  void _muteAllRemoteVideoAudio() {
+    setState(() {
+      allRemoteVideoMuted = !allRemoteVideoMuted;
+    });
+    _engine.muteAllRemoteVideoStreams(allRemoteVideoMuted);
+  }
+
+  addMediaModal(context) {
+    showModalBottomSheet(
+        context: context,
+        elevation: 0,
+        backgroundColor: blackColor,
+        builder: (context) {
+          return Container(
+            // height: (MediaQuery.of(context).size.height) * 0.2,
+            child: Column(children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  children: <Widget>[
+                    FlatButton(
+                      child: Icon(
+                        Icons.close,
+                      ),
+                      onPressed: () => Navigator.maybePop(context),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Manage Meeting",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                  child: ListTile(
+                subtitle: Text('Meeting chat'),
+                leading: Icon(Icons.schedule),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return MeetingChat(
+                      channelId: widget.channelName,
+                      user: widget.user,
+                    );
+                  }));
+                },
+                title: Text('Chat with anyone in the meeting'),
+              )),
+              Expanded(
+                  child: ListTile(
+                subtitle: Text('Meetings Members audio'),
+                leading: allRemoteMuted ? Icon(Icons.mic_off) : Icon(Icons.mic),
+                onTap: () {
+                  _muteAllRemoteAudio();
+                },
+                title: Text('receive/stop receiving all other audio streams'),
+              )),
+              Expanded(
+                  child: ListTile(
+                subtitle: Text('Meeting Members video'),
+                leading: allRemoteMuted
+                    ? Icon(Icons.video_camera_back)
+                    : Icon(Icons.videocam_off),
+                onTap: () {
+                  _muteAllRemoteVideoAudio();
+                },
+                title: Text('receive/stop receiving all other video streams'),
+              )),
+            ]),
+          );
+        });
   }
 }

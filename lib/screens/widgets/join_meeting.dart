@@ -275,7 +275,7 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CallPage(channelName: meetingCode, mic: mic, videoOn: videoOn,),
+            builder: (context) => CallPage(channelName: meetingCode, mic: mic, videoOn: videoOn, user: currUser!,),
           ));
     } else {
       return;

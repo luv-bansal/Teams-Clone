@@ -52,7 +52,7 @@ class _InstantMeetingState extends State<InstantMeeting> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CallPage(channelName: meeting_code, mic: 1, videoOn: 1, ),
+          builder: (context) => CallPage(channelName: meeting_code, mic: 1, videoOn: 1,user: currUser!, ),
         ));
   }
 
