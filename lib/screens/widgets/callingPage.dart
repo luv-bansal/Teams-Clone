@@ -173,6 +173,7 @@ class _CallPageState extends State<CallPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Agora Group Video Calling'),
+        elevation: 0.0,
         actions: [
           IconButton(
               onPressed: () {
@@ -183,7 +184,7 @@ class _CallPageState extends State<CallPage> {
                   );
                 }));
               },
-              icon: Icon(Icons.more))
+              icon: Icon(Icons.group))
         ],
       ),
       backgroundColor: Colors.black,
@@ -331,6 +332,7 @@ class _CallPageState extends State<CallPage> {
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RawMaterialButton(
@@ -343,19 +345,19 @@ class _CallPageState extends State<CallPage> {
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: muted ? color : Colors.white,
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(8.0),
           ),
           RawMaterialButton(
             onPressed: () => _onCallEnd(context),
             child: Icon(
               Icons.call_end,
               color: Colors.white,
-              size: 35.0,
+              size: 25.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
             onPressed: _onToggleVideoMute,
@@ -369,29 +371,31 @@ class _CallPageState extends State<CallPage> {
             fillColor: videoMute ? Colors.blueAccent : Colors.white,
             padding: const EdgeInsets.all(12.0),
           ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: color,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
-          ),
+          videoMute
+              ? Container()
+              : RawMaterialButton(
+                  onPressed: _onSwitchCamera,
+                  child: Icon(
+                    Icons.switch_camera,
+                    color: color,
+                    size: 20.0,
+                  ),
+                  shape: CircleBorder(),
+                  elevation: 2.0,
+                  fillColor: Colors.white,
+                  padding: const EdgeInsets.all(12.0),
+                ),
           RawMaterialButton(
             onPressed: () => addMediaModal(context),
             child: Icon(
               Icons.more,
               color: Colors.white,
-              size: 35.0,
+              size: 15.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: Colors.black26,
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(12.0),
           ),
         ],
       ),
@@ -409,7 +413,7 @@ class _CallPageState extends State<CallPage> {
     setState(() {
       videoMute = !videoMute;
     });
-     _engine.enableLocalVideo(!videoMute);
+    _engine.enableLocalVideo(!videoMute);
   }
 
   void _onCallEnd(BuildContext context) {
@@ -488,6 +492,7 @@ class _CallPageState extends State<CallPage> {
                 leading: allRemoteMuted ? Icon(Icons.mic_off) : Icon(Icons.mic),
                 onTap: () {
                   _muteAllRemoteAudio();
+                  Navigator.pop(context);
                 },
                 title: Text('receive/stop receiving all other audio streams'),
               )),
@@ -499,6 +504,7 @@ class _CallPageState extends State<CallPage> {
                     : Icon(Icons.videocam_off),
                 onTap: () {
                   _muteAllRemoteVideoAudio();
+                  Navigator.pop(context);
                 },
                 title: Text('receive/stop receiving all other video streams'),
               )),

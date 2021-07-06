@@ -66,6 +66,7 @@ class GoogleSignInProvider extends ChangeNotifier {
         "email": currUser.email,
         "username": Utils.getUsername(currUser.email),
         "profilePhotoURL": currUser.photoURL,
+        "group": [],
       }, SetOptions(merge: true)).then((_) {
         print("success!");
       });

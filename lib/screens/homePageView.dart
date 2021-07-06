@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:teams_clone/screens/callScreens/pickup/pickup_layout.dart';
+import 'package:teams_clone/screens/teamsScreen/teams_screen.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'PageView/chat_list_screen.dart';
 import 'home_screen.dart';
@@ -44,7 +45,7 @@ class _HomePageViewState extends State<HomePageView> {
           children: [
             HomeScreen(),
             ChatListScreen(),
-            Center(child: Text('Contact screen'),)
+            Teamsscreen()
           ],
           controller: pageController,
           onPageChanged: onPageChange,
@@ -86,12 +87,12 @@ class _HomePageViewState extends State<HomePageView> {
                   ),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.contact_phone,
+                  icon: Icon(Icons.group,
                       color: (_page == 2)
                           ? color
                           : Colors.grey),
                   title: Text(
-                    "Call logs",
+                    "Teams",
                     style: TextStyle(
                         fontSize: _labelFontSize,
                         color: (_page == 2)

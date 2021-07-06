@@ -3,6 +3,9 @@ import 'package:emoji_picker/emoji_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams_clone/models/message.dart';
+import 'package:teams_clone/screens/chatScreens/widget/add_media_modal.dart';
+import 'package:teams_clone/screens/chatScreens/widget/receiver_message_layout.dart';
+import 'package:teams_clone/screens/chatScreens/widget/sender_message_layout.dart';
 import 'package:teams_clone/services/chat_methods.dart';
 import 'package:teams_clone/utils/call_utilities.dart';
 import 'package:teams_clone/utils/utilities.dart';
@@ -122,114 +125,14 @@ class _ChatScreenState extends State<ChatScreen> {
                         ? Alignment.centerRight
                         : Alignment.centerLeft,
                     child: _message.senderId == sender!.uid
-                        ? senderLayout(_message)
-                        : receiverLayout(_message)),
+                        ? senderLayout(_message, context)
+                        : receiverLayout(_message, context)),
               );
             },
           );
         });
   }
 
-  Widget senderLayout(Message message) {
-    Radius messageRadius = Radius.circular(10);
-    return Container(
-      margin: EdgeInsets.only(top: 5),
-      constraints:
-          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
-      decoration: BoxDecoration(
-        color: senderColor,
-        borderRadius: BorderRadius.only(
-          topLeft: messageRadius,
-          topRight: messageRadius,
-          bottomLeft: messageRadius,
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Text(
-          message.message!,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget receiverLayout(Message message) {
-    Radius messageRadius = Radius.circular(10);
-
-    return Container(
-      margin: EdgeInsets.only(top: 12),
-      constraints:
-          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
-      decoration: BoxDecoration(
-        color: receiverColor,
-        borderRadius: BorderRadius.only(
-          bottomRight: messageRadius,
-          topRight: messageRadius,
-          bottomLeft: messageRadius,
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Text(
-          message.message!,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
-  addMediaModal(context) {
-    showModalBottomSheet(
-        context: context,
-        elevation: 0,
-        backgroundColor: blackColor,
-        builder: (context) {
-          return Container(
-            height: (MediaQuery.of(context).size.height) * 0.2,
-            child: Column(children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: Row(
-                  children: <Widget>[
-                    FlatButton(
-                      child: Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () => Navigator.maybePop(context),
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Schedule Call",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                  child: ListTile(
-                subtitle: Text('Arrange a call and get reminders'),
-                leading: Icon(Icons.schedule),
-                onTap: () {},
-                title: Text('Schedule Call'),
-              ))
-            ]),
-          );
-        });
-  }
 
   Widget chatControls() {
     setWritingTo(bool val) {

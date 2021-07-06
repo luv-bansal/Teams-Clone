@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return loading ? Loading() : Scaffold(
+    return Scaffold(
       backgroundColor: blackColor,
       appBar: AppBar(
         titleSpacing: 10,
@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white),
                   ))
               : Container(),
-          MeetingNotification(events),
+          loading ? Loading() : MeetingNotification(events),
           // ListView.builder(itemCount: events.length, itemBuilder: (context, index){
           //   return ListTile(
           //     hoverColor: Colors.grey,
