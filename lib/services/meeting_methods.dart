@@ -50,6 +50,36 @@ class MeetingMethods {
     }
   }
 
+  Future<bool> removeMember(
+      {required String channelId, required User member}) async {
+    try {
+      Map<String, dynamic> toMap(User user) {
+        var data = Map<String, dynamic>();
+        data['uid'] = user.uid;
+        data['name'] = user.displayName;
+        data['email'] = user.email;
+        data["profile_photo"] = user.photoURL;
+        return data;
+      }
+      // DocumentSnapshot meeting = await callCollection.doc(channelId).get();
+
+      // List x = (meeting.data() as Map)['people'];
+      // print(' list of user: $x');
+      // x.add(member);
+
+      await callCollection.doc(channelId).update({
+        "people": FieldValue.arrayRemove([toMap(member)]),
+      });
+
+      // await callCollection.doc().collection(collectionPath);
+
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   Future<bool> isMeetingExist({required String channelId}) async {
     try {
       DocumentSnapshot meeting = await callCollection.doc(channelId).get();
@@ -62,6 +92,23 @@ class MeetingMethods {
       print(e);
       return false;
     }
+  }
+
+  Future fetchUserId(User currUser) async {
+    final details =
+        await firestoreInstance.collection("users").doc(currUser.uid).get();
+
+    return details['userid'];
+  }
+
+  Future fetchUserFromUserid(int userid) async {
+    final result = await firestoreInstance
+        .collection("users")
+        .where("userid", isEqualTo: userid)
+        .get();
+    print(result.docs.first.data());
+    print(userid);
+    return result.docs.first.data();
   }
 
   Future<bool> endCall({required Meeting meeting}) async {

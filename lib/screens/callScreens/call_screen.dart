@@ -63,13 +63,13 @@ class _CallScreenState extends State<CallScreen> {
           ),
     );
 
-    print(response.statusCode);
-    print(widget.call.channelId);
-    print(baseUrl +
-        '/rtc/' +
-        widget.call.channelId +
-        '/publisher/uid/' +
-        userid.toString());
+    // print(response.statusCode);
+    // print(widget.call.channelId);
+    // print(baseUrl +
+    //     '/rtc/' +
+    //     widget.call.channelId +
+    //     '/publisher/uid/' +
+    //     userid.toString());
     if (response.statusCode == 200) {
       print(
           'Token generate: ${baseUrl + '/rtc/' + widget.call.channelId + '/publisher/uid/' + userid.toString()}');

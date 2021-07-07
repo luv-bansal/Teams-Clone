@@ -36,6 +36,8 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
   @override
   void initState() {
     super.initState();
+    mic = 1;
+    videoOn = 1;
     _joiningController.addListener(() {
       setState(() {});
     });
@@ -169,13 +171,20 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20,),
+                      SizedBox(
+                        height: 20,
+                      ),
                       Container(
                         margin: EdgeInsets.only(left: 20, right: 15),
                         child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                          Text('Mic', style: TextStyle(color: whiteColor, fontWeight: FontWeight.bold),),
+                            Text(
+                              'Mic',
+                              style: TextStyle(
+                                  color: whiteColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
                             ToggleSwitch(
                               minWidth: 60.0,
                               cornerRadius: 20.0,
@@ -191,7 +200,7 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
                               labels: ['', ''],
                               icons: [Icons.mic_off, Icons.mic],
                               onToggle: (index) {
-                                print('switched to: $index');
+                                // print('switched to: $index');
                                 setState(() {
                                   mic = index;
                                 });
@@ -206,12 +215,13 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
                       Container(
                         padding: EdgeInsets.only(left: 20, right: 15),
                         child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                          Text(
+                            Text(
                               'Video Cam',
                               style: TextStyle(
-                                  color: whiteColor, fontWeight: FontWeight.bold),
+                                  color: whiteColor,
+                                  fontWeight: FontWeight.bold),
                             ),
                             ToggleSwitch(
                               minWidth: 60.0,
@@ -228,7 +238,7 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
                               labels: ['', ''],
                               icons: [Icons.videocam_off, Icons.videocam],
                               onToggle: (index) {
-                                print('switched to: $index');
+                                // print('switched to: $index');
                                 setState(() {
                                   videoOn = index;
                                 });
@@ -268,14 +278,21 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
       await meetingMethods.makeCall(meeting: meeting);
       await meetingMethods.addMember(channelId: meetingCode, member: currUser!);
     }
-
+    int userid;
+    userid = await meetingMethods.fetchUserId(currUser!);
     await _handleCameraAndMic(Permission.camera);
     await _handleCameraAndMic(Permission.microphone);
     if (!_validateError) {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CallPage(channelName: meetingCode, mic: mic, videoOn: videoOn, user: currUser!,),
+            builder: (context) => CallPage(
+              userId: userid,
+              channelName: meetingCode,
+              mic: mic,
+              videoOn: videoOn,
+              user: currUser!,
+            ),
           ));
     } else {
       return;

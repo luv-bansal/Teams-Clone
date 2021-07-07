@@ -5,6 +5,7 @@ import 'package:teams_clone/screens/teamsScreen/widget/group_tile.dart';
 import 'package:teams_clone/screens/teamsScreen/widget/quiet_box.dart';
 import 'package:teams_clone/services/meeting_chat_methods.dart';
 import 'package:teams_clone/services/teams_methods.dart';
+import 'package:teams_clone/utils/utilities.dart';
 
 class Teamsscreen extends StatefulWidget {
   const Teamsscreen({Key? key}) : super(key: key);
@@ -90,6 +91,7 @@ class _TeamsscreenState extends State<Teamsscreen> {
         if (_groupName != null) {
           teamsMethods.createGroup(_user.displayName!, _groupName);
           Navigator.of(context).pop();
+          
         }
       },
     );
@@ -100,7 +102,7 @@ class _TeamsscreenState extends State<Teamsscreen> {
           onChanged: (val) {
             _groupName = val;
           },
-          style: TextStyle(fontSize: 15.0, height: 2.0, color: Colors.black)),
+          style: TextStyle(fontSize: 15.0, height: 2.0, color: whiteColor)),
       actions: [
         cancelButton,
         createButton,

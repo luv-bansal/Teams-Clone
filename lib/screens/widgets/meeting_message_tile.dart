@@ -10,8 +10,8 @@ class MessageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('message : $message');
-    print('send by me : $sentByMe');
+    // print('message : $message');
+    // print('send by me : $sentByMe');
     return Container(
       padding: EdgeInsets.only(
           top: 4, bottom: 4, left: sentByMe ? 0 : 24, right: sentByMe ? 24 : 0),

@@ -29,7 +29,7 @@ class _InstantMeetingState extends State<InstantMeeting> {
       onTap: () async {
         Navigator.pop(context);
         meeting_code = getRandomString(10);
-        await onJoin();
+        await onJoin(context, meeting_code);
       },
     );
   }
@@ -39,20 +39,22 @@ class _InstantMeetingState extends State<InstantMeeting> {
     print(status);
   }
 
-  Future<void> onJoin() async {
+  Future<void> onJoin(context, String meeting_code) async {
 
     Meeting meeting = Meeting(people: [], channelId: meeting_code);
 
     MeetingMethods meetingMethods = MeetingMethods();
-    bool _ = await meetingMethods.makeCall(meeting: meeting);
-    bool __ =await meetingMethods.addMember(channelId: meeting_code, member: currUser!);
+    meetingMethods.makeCall(meeting: meeting);
+    meetingMethods.addMember(channelId: meeting_code, member: currUser!);
 
     await _handleCameraAndMic(Permission.camera);
-    await _handleCameraAndMic(Permission.microphone);
+    await _handleCameraAndMic(Permission.microphone);    
+    int userid;
+    userid = await meetingMethods.fetchUserId(currUser!); 
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CallPage(channelName: meeting_code, mic: 1, videoOn: 1,user: currUser!, ),
+          builder: (context) => CallPage( userId: userid ,channelName: meeting_code, mic: 1, videoOn: 1,user: currUser!, ),
         ));
   }
 

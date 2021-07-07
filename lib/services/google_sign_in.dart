@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
   FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  int currId = 1;
   final googleSignIn = GoogleSignIn();
 
   bool _isSigningIn = false;
@@ -59,15 +60,16 @@ class GoogleSignInProvider extends ChangeNotifier {
       //         });
       //       }
       // });
-
+      
       await firestoreInstance.collection("users").doc(currUser.uid).set({
+        "userid": currId,
         "uid": currUser.uid,
         "name": currUser.displayName,
         "email": currUser.email,
         "username": Utils.getUsername(currUser.email),
         "profilePhotoURL": currUser.photoURL,
-        "group": [],
       }, SetOptions(merge: true)).then((_) {
+        currId++;
         print("success!");
       });
 
@@ -79,7 +81,7 @@ class GoogleSignInProvider extends ChangeNotifier {
     List userList = [];
     QuerySnapshot querySnapshot =
         await firestoreInstance.collection("users").get();
-    print(querySnapshot.docs.length);
+    // print(querySnapshot.docs.length);
     for (var i = 0; i < querySnapshot.docs.length; i++) {
       if (querySnapshot.docs[i].id != currUser.uid) {
         userList.add(querySnapshot.docs[i].data());
@@ -87,6 +89,8 @@ class GoogleSignInProvider extends ChangeNotifier {
     }
     return userList;
   }
+
+
 
   void logout() async {
     await googleSignIn.disconnect();

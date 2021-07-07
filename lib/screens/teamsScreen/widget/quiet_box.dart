@@ -26,7 +26,7 @@ class QuietBox extends StatelessWidget {
               ),
               SizedBox(height: 25),
               Text(
-                "Search Teams for calling or chatting with peers",
+                "Ceate Teams for calling or chatting with peers",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   letterSpacing: 1.2,
@@ -37,7 +37,7 @@ class QuietBox extends StatelessWidget {
               SizedBox(height: 25),
               FlatButton(
                 color: color,
-                child: Text("START SEARCHING"),
+                child: Text("CREATE TEAM"),
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker/emoji_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:teams_clone/screens/widgets/meeting_message_tile.dart';
 import 'package:teams_clone/services/meeting_chat_methods.dart';
+import 'package:teams_clone/utils/utilities.dart';
 
 class MeetingChat extends StatefulWidget {
   final User user;
@@ -18,6 +20,27 @@ class _MeetingChatState extends State<MeetingChat> {
 
 
   MeetingChatMethods meetingChatMethods = MeetingChatMethods();
+
+  FocusNode textFieldFocus = FocusNode();
+
+  bool showEmojiPicker = false;
+
+  showKeyboard() => textFieldFocus.requestFocus();
+
+  hideKeyboard() => textFieldFocus.unfocus();
+
+  hideEmojiContainer() {
+    setState(() {
+      showEmojiPicker = false;
+    });
+  }
+
+  showEmojiContainer() {
+    setState(() {
+      showEmojiPicker = true;
+    });
+  }
+
 
   @override
   void initState() {
@@ -88,10 +111,9 @@ class _MeetingChatState extends State<MeetingChat> {
         ),
         title: Text('Meeting Chat'),
       ),
-      body: Container(
-        child: Stack(
+      body: Column(
           children: <Widget>[
-            _chatMessages(),
+            Expanded(child: _chatMessages()),
             // Container(),
             Container(
               alignment: Alignment.bottomCenter,
@@ -102,16 +124,39 @@ class _MeetingChatState extends State<MeetingChat> {
                 child: Row(
                   children: <Widget>[
                     Expanded(
-                      child: TextField(
-                        controller: messageEditingController,
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                            hintText: "Send a message ...",
-                            hintStyle: TextStyle(
-                              color: Colors.white38,
-                              fontSize: 16,
-                            ),
-                            border: InputBorder.none),
+                      
+                      child: Stack(
+                        alignment: AlignmentDirectional.bottomEnd,
+                        children: [TextField(
+                          controller: messageEditingController,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                              hintText: "Send a message ...",
+                              hintStyle: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 16,
+                              ),
+                              border: InputBorder.none),
+                        ),
+            IconButton(
+                        splashColor: Colors.transparent,
+                        onPressed: () {
+                          if (!showEmojiPicker) {
+                            // keyboard is visible
+                            hideKeyboard();
+                            showEmojiContainer();
+                          } else {
+                            //keyboard is hidden
+                            showKeyboard();
+                            hideEmojiContainer();
+                          }
+                        },
+                        icon: Icon(
+                          Icons.face,
+                          color: Colors.amber,
+                        ),
+                      ),
+                        ]
                       ),
                     ),
                     SizedBox(width: 12.0),
@@ -132,10 +177,30 @@ class _MeetingChatState extends State<MeetingChat> {
                   ],
                 ),
               ),
-            )
+            ),
+          showEmojiPicker
+              ? Container(
+                  child: emojiWidgit(),
+                )
+              : Container()
           ],
         ),
-      ),
+    );
+  }
+  emojiWidgit() {
+    return EmojiPicker(
+      bgColor: separatorColor,
+      indicatorColor: color,
+      rows: 5,
+      columns: 8,
+      onEmojiSelected: (emoji, catagoty) {
+        setState(() {
+        });
+
+        messageEditingController.text = messageEditingController.text + emoji.emoji;
+      },
+      recommendKeywords: ["face", "happy", "party", "sad"],
+      numRecommended: 50,
     );
   }
 }

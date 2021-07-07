@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:teams_clone/screens/meetings/allMembers.dart';
 import 'package:teams_clone/screens/meetings/meeting_chat.dart';
 import 'package:teams_clone/services/meeting_chat_methods.dart';
+import 'package:teams_clone/services/meeting_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -14,9 +16,11 @@ class CallPage extends StatefulWidget {
   final String channelName;
   final int mic;
   final int videoOn;
+  final int userId;
   final User user;
   const CallPage(
-      {required this.channelName,
+      {required this.userId,
+      required this.channelName,
       required this.mic,
       required this.videoOn,
       required this.user});
@@ -28,7 +32,7 @@ class CallPage extends StatefulWidget {
 class _CallPageState extends State<CallPage> {
   //Add the link to your deployed server here
   String baseUrl = 'https://polar-dawn-99218.herokuapp.com';
-  int uid = 0;
+  late int uid;
   late String token;
   bool videoMute = false;
   bool muted = false;
@@ -36,9 +40,14 @@ class _CallPageState extends State<CallPage> {
   bool allRemoteMuted = false;
   bool allRemoteVideoMuted = false;
 
+  MeetingMethods meetingMethods = MeetingMethods();
   static final _users = <int>[];
   final _infoStrings = <String>[];
   static final _usersInfo = [];
+
+  late String userprofile;
+
+  int? remoteVideouid;
 
   late RtcEngine _engine;
 
@@ -48,7 +57,6 @@ class _CallPageState extends State<CallPage> {
 
   @override
   void dispose() {
-    meetingChatMethods.deleteChat(widget.channelName);
     // clear users
     _users.clear();
     // destroy sdk
@@ -62,6 +70,7 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     muted = widget.mic == 1 ? false : true;
     videoMute = widget.videoOn == 1 ? false : true;
+    uid = widget.userId;
     // initialize agora sdk
     initialize();
   }
@@ -78,20 +87,20 @@ class _CallPageState extends State<CallPage> {
           ),
     );
 
-    print(response.statusCode);
-    print(widget.channelName);
-    print(baseUrl +
-        '/rtc/' +
-        widget.channelName +
-        '/publisher/uid/' +
-        uid.toString());
+    // print(response.statusCode);
+    // print(widget.channelName);
+    // print(baseUrl +
+    //     '/rtc/' +
+    //     widget.channelName +
+    //     '/publisher/uid/' +
+    //     uid.toString());
     if (response.statusCode == 200) {
-      print(
-          'Token generate: ${baseUrl + '/rtc/' + widget.channelName + '/publisher/uid/' + uid.toString()}');
+      // print(
+      //     'Token generate: ${baseUrl + '/rtc/' + widget.channelName + '/publisher/uid/' + uid.toString()}');
       setState(() {
         token = response.body;
         token = jsonDecode(token)['rtcToken'];
-        print(token);
+        // print(token);
       });
     } else {
       print('Failed to fetch the token');
@@ -111,15 +120,16 @@ class _CallPageState extends State<CallPage> {
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
     await getToken();
-    await _engine.joinChannel(token, widget.channelName, null, 0);
-    print('token: $token');
-    print('chanel: $widget.channelName');
-    print('uid: $uid');
+    await _engine.joinChannel(token, widget.channelName, null, widget.userId);
+    // print('token: $token');
+    // print('chanel: $widget.channelName');
+    // print('uid: $uid');
   }
 
   Future<void> _initAgoraRtcEngine() async {
     _engine = await RtcEngine.create(appID);
-    videoMute == false ? await _engine.enableVideo() : _engine.disableVideo();
+    await _engine.enableVideo();
+    await _engine.enableLocalVideo(!videoMute);
     await _engine.muteLocalAudioStream(muted);
   }
 
@@ -141,7 +151,8 @@ class _CallPageState extends State<CallPage> {
       leaveChannel: (stats) {
         setState(() {
           _infoStrings.add('onLeaveChannel');
-          meetingChatMethods.deleteChat(widget.channelName);
+          meetingMethods.removeMember(
+              channelId: widget.channelName, member: widget.user);
           _users.clear();
         });
       },
@@ -152,10 +163,27 @@ class _CallPageState extends State<CallPage> {
           _users.add(uid);
         });
       },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        if (state == VideoRemoteState.Stopped) {
+          meetingMethods.fetchUserFromUserid(uid).then((value) {
+            setState(() {
+              userprofile = value["profilePhotoURL"];
+              remoteVideouid = uid;
+            });
+          });
+        } else {
+          setState(() {
+            userprofile = "";
+            remoteVideouid = null;
+          });
+        }
+      },
       userOffline: (uid, reason) {
         setState(() {
           final info = 'userOffline: $uid , reason: $reason';
           _infoStrings.add(info);
+          meetingMethods.removeMember(
+              channelId: widget.channelName, member: widget.user);
           _users.remove(uid);
         });
       },
@@ -172,12 +200,11 @@ class _CallPageState extends State<CallPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Agora Group Video Calling'),
+        title: Text('Meeting Call'),
         elevation: 0.0,
         actions: [
           IconButton(
               onPressed: () {
-                print('jhuj');
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return AllMembers(
                     channelId: widget.channelName,
@@ -202,18 +229,42 @@ class _CallPageState extends State<CallPage> {
   /// Helper function to get list of native views
   List<Widget> _getRenderViews() {
     final List<StatefulWidget> list = [];
-    list.add(RtcLocalView.SurfaceView());
-    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid)));
+    videoMute
+        ? list.add(Scaffold(
+            body: Container(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 70,
+                backgroundImage: NetworkImage(widget.user.photoURL!),
+              ),
+            ),
+          ))
+        : list.add(RtcLocalView.SurfaceView());
+
+    for (int i = 0; i < _users.length; i++) {
+      if (remoteVideouid == _users[i]) {
+          list.add(Scaffold(
+            body: Container(
+              alignment: Alignment.center,
+              child: CircleAvatar(
+                radius: 70,
+                backgroundImage: NetworkImage(userprofile),
+              ),
+            ),
+          ));
+      } else {
+        list.add(RtcRemoteView.SurfaceView(uid: _users[i]));
+      }
+    }
+
     return list;
   }
 
   /// Video view wrapper
   Widget _videoView(view) {
     return Expanded(
-        child: Stack(
-      alignment: Alignment.bottomLeft,
-      children: [Container(child: view), Text('${currUser!.displayName}')],
-    ));
+      child: Container(child: view),
+    );
   }
 
   /// Video view row wrapper
@@ -335,41 +386,47 @@ class _CallPageState extends State<CallPage> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              muted ? Icons.mic_off : Icons.mic,
-              color: muted ? Colors.white : color,
-              size: 20.0,
+          Expanded(
+            child: RawMaterialButton(
+              onPressed: _onToggleMute,
+              child: Icon(
+                muted ? Icons.mic_off : Icons.mic,
+                color: muted ? Colors.white : color,
+                size: 20.0,
+              ),
+              shape: CircleBorder(),
+              elevation: 2.0,
+              fillColor: muted ? color : Colors.white,
+              padding: const EdgeInsets.all(8.0),
             ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: muted ? color : Colors.white,
-            padding: const EdgeInsets.all(8.0),
           ),
-          RawMaterialButton(
-            onPressed: () => _onCallEnd(context),
-            child: Icon(
-              Icons.call_end,
-              color: Colors.white,
-              size: 25.0,
+          Expanded(
+            child: RawMaterialButton(
+              onPressed: () => _onCallEnd(context),
+              child: Icon(
+                Icons.call_end,
+                color: Colors.white,
+                size: 25.0,
+              ),
+              shape: CircleBorder(),
+              elevation: 2.0,
+              fillColor: Colors.redAccent,
+              padding: const EdgeInsets.all(12.0),
             ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(12.0),
           ),
-          RawMaterialButton(
-            onPressed: _onToggleVideoMute,
-            child: Icon(
-              videoMute ? Icons.videocam_off : Icons.video_call_rounded,
-              color: videoMute ? Colors.white : Colors.blueAccent,
-              size: 20.0,
+          Expanded(
+            child: RawMaterialButton(
+              onPressed: _onToggleVideoMute,
+              child: Icon(
+                videoMute ? Icons.videocam_off : Icons.video_call_rounded,
+                color: videoMute ? Colors.white : Colors.blueAccent,
+                size: 20.0,
+              ),
+              shape: CircleBorder(),
+              elevation: 2.0,
+              fillColor: videoMute ? Colors.blueAccent : Colors.white,
+              padding: const EdgeInsets.all(12.0),
             ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: videoMute ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
           ),
           videoMute
               ? Container()
@@ -385,17 +442,19 @@ class _CallPageState extends State<CallPage> {
                   fillColor: Colors.white,
                   padding: const EdgeInsets.all(12.0),
                 ),
-          RawMaterialButton(
-            onPressed: () => addMediaModal(context),
-            child: Icon(
-              Icons.more,
-              color: Colors.white,
-              size: 15.0,
+          Expanded(
+            child: RawMaterialButton(
+              onPressed: () => addMediaModal(context),
+              child: Icon(
+                Icons.more,
+                color: Colors.white,
+                size: 15.0,
+              ),
+              shape: CircleBorder(),
+              elevation: 2.0,
+              fillColor: Colors.black26,
+              padding: const EdgeInsets.all(12.0),
             ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.black26,
-            padding: const EdgeInsets.all(12.0),
           ),
         ],
       ),
