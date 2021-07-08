@@ -44,6 +44,7 @@ class _HomePageViewState extends State<HomePageView> {
       scaffold: Scaffold(
         resizeToAvoidBottomInset: false,
         body: PageView(
+          
           children: [
             HomeScreen(),
             ChatListScreen(),
@@ -51,10 +52,11 @@ class _HomePageViewState extends State<HomePageView> {
           ],
           controller: pageController,
           onPageChanged: onPageChange,
-          physics: NeverScrollableScrollPhysics(),
+          // physics: NeverScrollableScrollPhysics(),
     
         ),
         bottomNavigationBar: Container(
+          color: blackColor,
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
             child: CupertinoTabBar(

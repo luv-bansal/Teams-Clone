@@ -11,6 +11,7 @@ class Wrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: ChangeNotifierProvider(
         create: (context) => GoogleSignInProvider(),
         child: StreamBuilder(

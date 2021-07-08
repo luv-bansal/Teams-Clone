@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:teams_clone/models/contact.dart';
 import 'package:teams_clone/screens/PageView/widgets/contact_view.dart';
 import 'package:teams_clone/screens/PageView/widgets/new_chat_button.dart';
@@ -30,32 +31,31 @@ class _ChatListScreenState extends State<ChatListScreen> {
       backgroundColor: blackColor,
       appBar: AppBar(
         backgroundColor: blackColor,
-        leading: IconButton(
-          icon: Icon(Icons.notifications),
-          color: Colors.white,
-          onPressed: () {},
+        title: FaIcon(
+        FontAwesomeIcons.microsoft
         ),
-        title: UserCircle(initials),
+        leading: Padding(
+          padding: const EdgeInsets.only( top: 10, left: 15, bottom: 5),
+          child: UserCircle(initials),
+        ),
+        centerTitle: true,
         actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: IconButton(
+              icon: Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchScreen()),
+                );
+              },
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchScreen()),
-              );
-            },
           ),
-          IconButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.white,
-            ),
-            onPressed: () {},
-          ),
+
         ],
       ),
       body: ChatListContainer(currUser!.uid),

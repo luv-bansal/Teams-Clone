@@ -80,6 +80,7 @@ class MeetingMethods {
     }
   }
 
+
   Future<bool> isMeetingExist({required String channelId}) async {
     try {
       DocumentSnapshot meeting = await callCollection.doc(channelId).get();
@@ -111,9 +112,9 @@ class MeetingMethods {
     return result.docs.first.data();
   }
 
-  Future<bool> endCall({required Meeting meeting}) async {
+  Future<bool> endCall({required String channelId}) async {
     try {
-      await callCollection.doc(meeting.channelId).delete();
+      await callCollection.doc(channelId).delete();
       return true;
     } catch (e) {
       print(e);

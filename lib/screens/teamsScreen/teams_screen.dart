@@ -120,13 +120,11 @@ class _TeamsscreenState extends State<Teamsscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: blackColor,
       appBar: AppBar(
         leading: Icon(Icons.group_outlined),
         title: Text('Teams'),
         elevation: 0.0,
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_outlined))
-        ],
       ),
       body: groupsList(),
       floatingActionButton: FloatingActionButton(

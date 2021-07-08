@@ -141,11 +141,11 @@ Future showWidgitFunc(
                       decoration: buttonDecoration,
                       child: FlatButton(
                         onPressed: () async {
-                          Navigator.of(context).pop();
+                          // Navigator.of(context).pop();
 
                           teamsMethods.updateMeetingCode(groupId, meetingCode);
 
-                          await onJoin(context, meetingCode, settings.mic,
+                          onJoin(context, meetingCode, settings.mic,
                               settings.videoOn, currUser, groupId, groupName);
                         },
                         child: Text(
@@ -171,13 +171,18 @@ Future<void> _handleCameraAndMic(Permission permission) async {
   print(status);
 }
 
-Future<void> onJoin(context, String meeting_code, int mic, int videoOn,
+Future<void> onJoin(context, String meetingCode, int mic, int videoOn,
     User currUser, String groupId, String groupName) async {
-  Meeting meeting = Meeting(people: [], channelId: meeting_code);
+    MeetingMethods meetingMethods = MeetingMethods();
+  bool isExist = await meetingMethods.isMeetingExist(channelId: meetingCode);
 
-  MeetingMethods meetingMethods = MeetingMethods();
-  meetingMethods.makeCall(meeting: meeting);
-  meetingMethods.addMember(channelId: meeting_code, member: currUser);
+  if (isExist) {
+    await meetingMethods.addMember(channelId: meetingCode, member: currUser);
+  } else {
+    Meeting meeting = Meeting(people: [], channelId: meetingCode);
+    await meetingMethods.makeCall(meeting: meeting);
+    await meetingMethods.addMember(channelId: meetingCode, member: currUser);
+  }
 
   await _handleCameraAndMic(Permission.camera);
   await _handleCameraAndMic(Permission.microphone);
@@ -188,7 +193,7 @@ Future<void> onJoin(context, String meeting_code, int mic, int videoOn,
       MaterialPageRoute(
         builder: (context) => CallPage(
           userId: userid,
-          channelName: meeting_code,
+          channelName: meetingCode,
           mic: mic,
           videoOn: videoOn,
           user: currUser,

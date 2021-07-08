@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -54,12 +55,10 @@ class _CallPageState extends State<CallPage> {
   final _infoStrings = <String>[];
   static final _usersInfo = [];
 
-  late String userprofile;
-
-  int? remoteVideouid;
+  var remoteVideoInfo = new Map();
+  List<String> remoteUsersInfo = [];
 
   late RtcEngine _engine;
-
   User? currUser = FirebaseAuth.instance.currentUser;
 
   MeetingChatMethods meetingChatMethods = MeetingChatMethods();
@@ -69,12 +68,22 @@ class _CallPageState extends State<CallPage> {
   void dispose() {
     // clear users
     _users.clear();
+    remoteUsersInfo.clear();
     // destroy sdk
     _engine.leaveChannel();
-
-    widget.groupId != null
-        ? teamsMethods.updateMeetingCode(widget.groupId!, '')
-        : {};
+    FirebaseFirestore.instance
+        .collection('meetings')
+        .doc(widget.channelName)
+        .get()
+        .then((value) {
+      if (widget.groupId != null &&
+          (value.data() as Map)['people'].length == 0) {
+        teamsMethods.updateMeetingCode(widget.groupId!, '');
+      }
+      if ((value.data() as Map)['people'].length == 0) {
+        meetingMethods.endCall(channelId: widget.channelName);
+      }
+    });
 
     meetingMethods.removeMember(
         channelId: widget.channelName, member: widget.user);
@@ -88,6 +97,7 @@ class _CallPageState extends State<CallPage> {
     muted = widget.mic == 1 ? false : true;
     videoMute = widget.videoOn == 1 ? false : true;
     uid = widget.userId;
+    remoteUsersInfo.add(widget.user.displayName!);
     // initialize agora sdk
     initialize();
   }
@@ -171,37 +181,63 @@ class _CallPageState extends State<CallPage> {
           meetingMethods.removeMember(
               channelId: widget.channelName, member: widget.user);
           _users.clear();
+          remoteUsersInfo.clear();
         });
       },
       userJoined: (uid, elapsed) {
-        setState(() {
-          final info = 'userJoined: $uid';
-          _infoStrings.add(info);
-          _users.add(uid);
+        meetingMethods.fetchUserFromUserid(uid).then((value) {
+          setState(() {
+            final info = 'userJoined: $uid';
+            _infoStrings.add(info);
+            _users.add(uid);
+            print(value['name']);
+
+            remoteUsersInfo.add(value['name']);
+            print(remoteUsersInfo.length);
+          });
         });
       },
-      remoteVideoStateChanged: (uid, state, reason, elapsed) {
-        if (state == VideoRemoteState.Stopped) {
+      userMuteVideo: (uid, muted) {
+        if (muted == true) {
           meetingMethods.fetchUserFromUserid(uid).then((value) {
             setState(() {
-              userprofile = value["profilePhotoURL"];
-              remoteVideouid = uid;
+              print("uid: ${uid}");
+              print("name: ${value['name']}");
+              remoteVideoInfo[uid] = value["profilePhotoURL"];
             });
           });
         } else {
           setState(() {
-            userprofile = "";
-            remoteVideouid = null;
+            remoteVideoInfo[uid] = null;
+          });
+        }
+      },
+      remoteVideoStateChanged: (uid, state, reason, elapsed) {
+        if (state == VideoRemoteState.Stopped ||
+            state == VideoRemoteState.Frozen) {
+          meetingMethods.fetchUserFromUserid(uid).then((value) {
+            setState(() {
+              print("uid: ${uid}");
+              print("name: ${value['name']}");
+              remoteVideoInfo[uid] = value["profilePhotoURL"];
+            });
+          });
+        } else {
+          setState(() {
+            remoteVideoInfo[uid] = null;
           });
         }
       },
       userOffline: (uid, reason) {
-        setState(() {
-          final info = 'userOffline: $uid , reason: $reason';
-          _infoStrings.add(info);
-          meetingMethods.removeMember(
-              channelId: widget.channelName, member: widget.user);
-          _users.remove(uid);
+        meetingMethods.fetchUserFromUserid(uid).then((value) {
+          setState(() {
+            final info = 'userOffline: $uid , reason: $reason';
+            _infoStrings.add(info);
+            meetingMethods.removeMember(
+                channelId: widget.channelName, member: widget.user);
+            _users.remove(uid);
+            remoteUsersInfo.remove(value['name']);
+          });
         });
       },
       firstRemoteVideoFrame: (uid, width, height, elapsed) {
@@ -259,13 +295,13 @@ class _CallPageState extends State<CallPage> {
         : list.add(RtcLocalView.SurfaceView());
 
     for (int i = 0; i < _users.length; i++) {
-      if (remoteVideouid == _users[i]) {
+      if (remoteVideoInfo[_users[i]] != null) {
         list.add(Scaffold(
           body: Container(
             alignment: Alignment.center,
             child: CircleAvatar(
               radius: 70,
-              backgroundImage: NetworkImage(userprofile),
+              backgroundImage: NetworkImage(remoteVideoInfo[_users[i]]),
             ),
           ),
         ));
@@ -278,15 +314,29 @@ class _CallPageState extends State<CallPage> {
   }
 
   /// Video view wrapper
-  Widget _videoView(view) {
+  Widget _videoView(view, int i) {
     return Expanded(
-      child: Container(child: view),
+      child: Stack(
+          alignment: Alignment.bottomLeft,
+          children: [Container(
+            // margin: EdgeInsets.all(20),
+            // padding: EdgeInsets.all(20),
+            child: view), 
+            Container(
+              padding: EdgeInsets.all(10),
+              child: Text(remoteUsersInfo[i], 
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),),
+            )]),
     );
   }
 
   /// Video view row wrapper
-  Widget _expandedVideoRow(List<Widget> views) {
-    final wrappedViews = views.map<Widget>(_videoView).toList();
+  Widget _expandedVideoRow(List<Widget> views, int st, int end) {
+    List<Widget> wrappedViews = [];
+    for (int i = st; i < end; i++) {
+      wrappedViews.add(_videoView(views[i-st], i));
+    }
+    // final wrappedViews = views.map<Widget>(_videoView).toList();
     return Expanded(
       child: Row(
         children: wrappedViews,
@@ -300,39 +350,39 @@ class _CallPageState extends State<CallPage> {
       case 1:
         return Container(
             child: Column(
-          children: <Widget>[_videoView(views[0])],
+          children: <Widget>[_videoView(views[0], 0)],
         ));
       case 2:
         return Container(
             child: Column(
           children: <Widget>[
-            _expandedVideoRow([views[0]]),
-            _expandedVideoRow([views[1]])
+            _expandedVideoRow([views[0]], 0, 1),
+            _expandedVideoRow([views[1]], 1, 2)
           ],
         ));
       case 3:
         return Container(
             child: Column(
           children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 3))
+            _expandedVideoRow(views.sublist(0, 2), 0, 2),
+            _expandedVideoRow(views.sublist(2, 3), 2, 3)
           ],
         ));
       case 4:
         return Container(
             child: Column(
           children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 4))
+            _expandedVideoRow(views.sublist(0, 2), 0, 2),
+            _expandedVideoRow(views.sublist(2, 4), 2, 4)
           ],
         ));
       case 5:
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 2)),
-              _expandedVideoRow(views.sublist(2, 4)),
-              _expandedVideoRow(views.sublist(4, 5)),
+              _expandedVideoRow(views.sublist(0, 2), 0, 2),
+              _expandedVideoRow(views.sublist(2, 4), 2, 4),
+              _expandedVideoRow(views.sublist(4, 5), 4, 5),
             ],
           ),
         );
@@ -340,9 +390,9 @@ class _CallPageState extends State<CallPage> {
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 2)),
-              _expandedVideoRow(views.sublist(2, 4)),
-              _expandedVideoRow(views.sublist(4, 6)),
+              _expandedVideoRow(views.sublist(0, 2), 0, 2),
+              _expandedVideoRow(views.sublist(2, 4), 2, 4),
+              _expandedVideoRow(views.sublist(4, 6), 4, 6),
             ],
           ),
         );
@@ -350,10 +400,10 @@ class _CallPageState extends State<CallPage> {
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 2)),
-              _expandedVideoRow(views.sublist(2, 4)),
-              _expandedVideoRow(views.sublist(4, 6)),
-              _expandedVideoRow(views.sublist(6, 7)),
+              _expandedVideoRow(views.sublist(0, 2), 0, 2),
+              _expandedVideoRow(views.sublist(2, 4), 2, 4),
+              _expandedVideoRow(views.sublist(4, 6), 4, 6),
+              _expandedVideoRow(views.sublist(6, 7), 6, 7),
             ],
           ),
         );
@@ -361,10 +411,10 @@ class _CallPageState extends State<CallPage> {
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 2)),
-              _expandedVideoRow(views.sublist(2, 4)),
-              _expandedVideoRow(views.sublist(4, 5)),
-              _expandedVideoRow(views.sublist(6, 8)),
+              _expandedVideoRow(views.sublist(0, 2), 0, 2),
+              _expandedVideoRow(views.sublist(2, 4), 2, 4),
+              _expandedVideoRow(views.sublist(4, 5), 4, 5),
+              _expandedVideoRow(views.sublist(6, 8), 6, 8),
             ],
           ),
         );
@@ -372,10 +422,10 @@ class _CallPageState extends State<CallPage> {
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 2)),
-              _expandedVideoRow(views.sublist(2, 4)),
-              _expandedVideoRow(views.sublist(4, 7)),
-              _expandedVideoRow(views.sublist(7, 9)),
+              _expandedVideoRow(views.sublist(0, 2), 0, 2),
+              _expandedVideoRow(views.sublist(2, 4), 2, 4),
+              _expandedVideoRow(views.sublist(4, 7), 4, 7),
+              _expandedVideoRow(views.sublist(7, 9), 7, 9),
             ],
           ),
         );
@@ -383,10 +433,10 @@ class _CallPageState extends State<CallPage> {
         return Container(
           child: Column(
             children: [
-              _expandedVideoRow(views.sublist(0, 3)),
-              _expandedVideoRow(views.sublist(3, 5)),
-              _expandedVideoRow(views.sublist(5, 8)),
-              _expandedVideoRow(views.sublist(8, 10)),
+              _expandedVideoRow(views.sublist(0, 3), 0, 3),
+              _expandedVideoRow(views.sublist(3, 5), 3, 5),
+              _expandedVideoRow(views.sublist(5, 8), 5, 8),
+              _expandedVideoRow(views.sublist(8, 10), 8, 10),
             ],
           ),
         );

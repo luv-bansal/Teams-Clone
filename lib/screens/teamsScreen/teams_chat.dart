@@ -22,7 +22,7 @@ class TeamsChatScreen extends StatefulWidget {
 class _TeamsChatScreenState extends State<TeamsChatScreen> {
   TeamsMethods teamsMethods = TeamsMethods();
   User user = FirebaseAuth.instance.currentUser!;
-
+  
   late String meetingCode;
   // var meetingCode = teamsMethods.getMeetingCode(widget.groupId);
 
