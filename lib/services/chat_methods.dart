@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:teams_clone/models/contact.dart';
 import 'package:teams_clone/models/message.dart';
 
-
-class ChatMethods{
+class ChatMethods {
   FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
   final CollectionReference _messageCollection =
@@ -22,17 +21,21 @@ class ChatMethods{
         .collection(message.receiverId!)
         .add(map);
 
+
+    await addToContacts(receiverId: message.receiverId!, senderId: message.senderId!);
+
+
     await _messageCollection
-        .doc(message.receiverId).collection(message.senderId!).add(map);
+        .doc(message.receiverId)
+        .collection(message.senderId!)
+        .add(map);
   }
 
-  DocumentReference getContactsDocument({required String of,  required String forContact}) =>
-      _userCollection
-          .doc(of)
-          .collection('contacts')
-          .doc(forContact);
+  DocumentReference getContactsDocument(
+          {required String of, required String forContact}) =>
+      _userCollection.doc(of).collection('contacts').doc(forContact);
 
-addToContacts({required String senderId, required String receiverId}) async {
+  addToContacts({required String senderId, required String receiverId}) async {
     Timestamp currentTime = Timestamp.now();
 
     await addToSenderContacts(senderId, receiverId, currentTime);
@@ -83,12 +86,10 @@ addToContacts({required String senderId, required String receiverId}) async {
     }
   }
 
-  Stream<QuerySnapshot> fetchContacts({required String userId}) => _userCollection
-      .doc(userId)
-      .collection('contacts')
-      .snapshots();
+  Stream<QuerySnapshot> fetchContacts({required String userId}) =>
+      _userCollection.doc(userId).collection('contacts').snapshots();
 
-  Stream<QuerySnapshot> fetchLastMessageBetween({
+  Stream<QuerySnapshot> fetchLastMessage({
     required String senderId,
     required String receiverId,
   }) =>
@@ -98,5 +99,3 @@ addToContacts({required String senderId, required String receiverId}) async {
           .orderBy("timestamp")
           .snapshots();
 }
-
-

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:teams_clone/models/user.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -60,7 +59,7 @@ class GoogleSignInProvider extends ChangeNotifier {
       //         });
       //       }
       // });
-      
+
       await firestoreInstance.collection("users").doc(currUser.uid).set({
         "userid": currId,
         "uid": currUser.uid,
@@ -90,7 +89,11 @@ class GoogleSignInProvider extends ChangeNotifier {
     return userList;
   }
 
-
+  Future getUserDetailsById(uid) async {
+    DocumentSnapshot documentSnapshot =
+        await firestoreInstance.collection("users").doc(uid).get();
+    return documentSnapshot.data() as Map;
+  }
 
   void logout() async {
     await googleSignIn.disconnect();

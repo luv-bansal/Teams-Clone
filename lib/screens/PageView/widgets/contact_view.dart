@@ -1,27 +1,66 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:teams_clone/models/contact.dart';
+import 'package:teams_clone/screens/PageView/widgets/last_message_containter.dart';
+import 'package:teams_clone/screens/chatScreens/chat_screen.dart';
+import 'package:teams_clone/services/chat_methods.dart';
+import 'package:teams_clone/services/google_sign_in.dart';
 import 'package:teams_clone/utils/utilities.dart';
 
 class ContactView extends StatefulWidget {
-  const ContactView({ Key? key }) : super(key: key);
-
+  final Contact contact;
+  ContactView({required this.contact});
   @override
   _ContactViewState createState() => _ContactViewState();
 }
 
 class _ContactViewState extends State<ContactView> {
+  final GoogleSignInProvider googleSignInProvider = GoogleSignInProvider();
+  
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: googleSignInProvider.getUserDetailsById(widget.contact.uid),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var user = snapshot.data;
+
+            return ViewLayout(
+              receiver: user,
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+  }
+}
+
+class ViewLayout extends StatelessWidget {
+  ChatMethods chatMethods = ChatMethods();
+  final receiver;
+  ViewLayout({required this.receiver});
+  User? sender = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(
+              receiver: receiver,
+            ),
+          )),
       title: Text(
-        "Luv Bansal",
+        (receiver != null ? receiver['name'] : null) != null
+            ? receiver['name']
+            : "..",
         style: TextStyle(color: Colors.white, fontSize: 19),
       ),
-      subtitle: Text(
-        "Hello",
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-        ),
+      subtitle: LastMessageContainer(
+        stream: chatMethods.fetchLastMessage(senderId: sender!.uid, receiverId: receiver['uid']),
       ),
       leading: Container(
         constraints: BoxConstraints(maxHeight: 60, maxWidth: 60),
@@ -30,8 +69,7 @@ class _ContactViewState extends State<ContactView> {
             CircleAvatar(
               maxRadius: 30,
               backgroundColor: Colors.grey,
-              backgroundImage: NetworkImage(
-                  "https://yt3.ggpht.com/a/AGF-l7_zT8BuWwHTymaQaBptCy7WrsOD72gYGp-puw=s900-c-k-c0xffffffff-no-rj-mo"),
+              backgroundImage: NetworkImage(receiver['profilePhotoURL']),
             ),
             Align(
               alignment: Alignment.bottomRight,

@@ -7,7 +7,9 @@ class Contact {
   Contact({
     required this.uid,
     required this.addedOn,
+    required 
   });
+
 
   Map toMap(Contact contact) {
     var data = Map<String, dynamic>();

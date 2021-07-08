@@ -64,6 +64,10 @@ dependencies:
   #switch
   toggle_switch: ^1.2.0
 
+  # Push notifications 
+  firebase_messaging: ^10.0.3
+  flutter_local_notifications: ^6.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

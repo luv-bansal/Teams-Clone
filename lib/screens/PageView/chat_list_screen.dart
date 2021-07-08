@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:teams_clone/models/contact.dart';
+import 'package:teams_clone/screens/PageView/widgets/contact_view.dart';
 import 'package:teams_clone/screens/PageView/widgets/new_chat_button.dart';
+import 'package:teams_clone/screens/PageView/widgets/quiet_box.dart';
 import 'package:teams_clone/screens/PageView/widgets/user_circle.dart';
+
+import 'package:teams_clone/services/chat_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:teams_clone/screens/search_screen.dart';
 
@@ -68,14 +74,31 @@ class ChatListContainer extends StatefulWidget {
 }
 
 class _ChatListContainerState extends State<ChatListContainer> {
+  ChatMethods _chatMethods = ChatMethods();
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: ListView.builder(
-          padding: EdgeInsets.all(10),
-          itemCount: 2,
-          itemBuilder: (context, index) {
-            return Container();
+      child: StreamBuilder<QuerySnapshot>(
+          stream: _chatMethods.fetchContacts(userId: widget.currentUserId),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              var contactList = snapshot.data!.docs;
+              if (contactList.isEmpty) {
+                return QuietBox();
+              }
+            return ListView.builder(
+                  padding: EdgeInsets.all(10),
+                  itemCount: contactList.length,
+                  itemBuilder: (context, index) {
+                    Contact contact = Contact.fromMap(contactList[index].data() as Map<String, dynamic>);
+                    return ContactView(contact: contact,);
+                  });
+
+            }
+            return Center(child: CircularProgressIndicator());
+
+
           }),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:teams_clone/screens/meetings/allMembers.dart';
 import 'package:teams_clone/screens/meetings/meeting_chat.dart';
+import 'package:teams_clone/screens/teamsScreen/meeting_chats.dart';
 import 'package:teams_clone/services/meeting_chat_methods.dart';
 import 'package:teams_clone/services/meeting_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
@@ -18,12 +19,18 @@ class CallPage extends StatefulWidget {
   final int videoOn;
   final int userId;
   final User user;
+  final String? groupId;
+  final String? groupName;
+
   const CallPage(
       {required this.userId,
       required this.channelName,
       required this.mic,
       required this.videoOn,
-      required this.user});
+      required this.user,
+      this.groupId,
+      this.groupName
+      });
 
   @override
   _CallPageState createState() => _CallPageState();
@@ -61,6 +68,8 @@ class _CallPageState extends State<CallPage> {
     _users.clear();
     // destroy sdk
     _engine.leaveChannel();
+    meetingMethods.removeMember(
+        channelId: widget.channelName, member: widget.user);
     _engine.destroy();
     super.dispose();
   }
@@ -150,9 +159,11 @@ class _CallPageState extends State<CallPage> {
       },
       leaveChannel: (stats) {
         setState(() {
+          
           _infoStrings.add('onLeaveChannel');
           meetingMethods.removeMember(
-              channelId: widget.channelName, member: widget.user);
+              channelId: widget.channelName, member: widget.user
+              );
           _users.clear();
         });
       },
@@ -243,15 +254,15 @@ class _CallPageState extends State<CallPage> {
 
     for (int i = 0; i < _users.length; i++) {
       if (remoteVideouid == _users[i]) {
-          list.add(Scaffold(
-            body: Container(
-              alignment: Alignment.center,
-              child: CircleAvatar(
-                radius: 70,
-                backgroundImage: NetworkImage(userprofile),
-              ),
+        list.add(Scaffold(
+          body: Container(
+            alignment: Alignment.center,
+            child: CircleAvatar(
+              radius: 70,
+              backgroundImage: NetworkImage(userprofile),
             ),
-          ));
+          ),
+        ));
       } else {
         list.add(RtcRemoteView.SurfaceView(uid: _users[i]));
       }
@@ -537,10 +548,10 @@ class _CallPageState extends State<CallPage> {
                 leading: Icon(Icons.schedule),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return MeetingChat(
+                    return widget.groupId== null ? MeetingChat(
                       channelId: widget.channelName,
                       user: widget.user,
-                    );
+                    ) : TeamMeetingChat( groupId: widget.groupId!, groupName: widget.groupName!, userName: widget.user.displayName!,) ;
                   }));
                 },
                 title: Text('Chat with anyone in the meeting'),
