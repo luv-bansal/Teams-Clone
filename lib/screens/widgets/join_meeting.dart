@@ -83,10 +83,12 @@ class _JoinMeetingWidgetState extends State<JoinMeetingWidget> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return await showDialog(
+
         context: context,
         builder: (context) {
-          return Center(
+          return Dialog(
             child: Material(
+            
               type: MaterialType.transparency,
               child: Container(
                 width: width * 0.8,

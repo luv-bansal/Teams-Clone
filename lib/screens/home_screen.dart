@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:teams_clone/models/event.dart';
 import 'package:teams_clone/screens/loading.dart';
 import 'package:teams_clone/screens/widgets/create_meeting.dart';
+import 'package:teams_clone/screens/widgets/user_profile.dart';
 import 'package:teams_clone/services/calendar_event_provider.dart';
 import 'package:teams_clone/services/google_sign_in.dart';
 import 'package:teams_clone/utils/utilities.dart';
@@ -33,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       backgroundColor: blackColor,
       appBar: AppBar(
         titleSpacing: 10,
@@ -50,15 +52,22 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             child: FlatButton(
               onPressed: () {
-                final provider =
-                    Provider.of<GoogleSignInProvider>(context, listen: false);
-                provider.logout();
+                showModalBottomSheet(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      return UserProfile(user: currentUser!);
+                    });
+                // final provider =
+                //     Provider.of<GoogleSignInProvider>(context, listen: false);
+                // provider.logout();
               },
               child: CircleAvatar(
                 radius: 20,
                 backgroundImage: NetworkImage(currentUser!.photoURL ??
                     'https://www.esm.rochester.edu/uploads/NoPhotoAvailable.jpg'),
               ),
+              
             ),
           )
         ],

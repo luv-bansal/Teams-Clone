@@ -40,7 +40,9 @@ class _HomePageViewState extends State<HomePageView> {
   Widget build(BuildContext context) {
     double _labelFontSize =10;
     return PickupLayout(
+      
       scaffold: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: PageView(
           children: [
             HomeScreen(),

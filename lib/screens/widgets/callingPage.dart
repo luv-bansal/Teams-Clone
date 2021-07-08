@@ -4,8 +4,11 @@ import 'package:flutter/painting.dart';
 import 'package:teams_clone/screens/meetings/allMembers.dart';
 import 'package:teams_clone/screens/meetings/meeting_chat.dart';
 import 'package:teams_clone/screens/teamsScreen/meeting_chats.dart';
+import 'package:teams_clone/screens/teamsScreen/widget/bottom_modal_options.dart';
+import 'package:teams_clone/screens/widgets/get_meeting_code_share.dart';
 import 'package:teams_clone/services/meeting_chat_methods.dart';
 import 'package:teams_clone/services/meeting_methods.dart';
+import 'package:teams_clone/services/teams_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -29,8 +32,7 @@ class CallPage extends StatefulWidget {
       required this.videoOn,
       required this.user,
       this.groupId,
-      this.groupName
-      });
+      this.groupName});
 
   @override
   _CallPageState createState() => _CallPageState();
@@ -61,6 +63,7 @@ class _CallPageState extends State<CallPage> {
   User? currUser = FirebaseAuth.instance.currentUser;
 
   MeetingChatMethods meetingChatMethods = MeetingChatMethods();
+  TeamsMethods teamsMethods = TeamsMethods();
 
   @override
   void dispose() {
@@ -68,6 +71,11 @@ class _CallPageState extends State<CallPage> {
     _users.clear();
     // destroy sdk
     _engine.leaveChannel();
+
+    widget.groupId != null
+        ? teamsMethods.updateMeetingCode(widget.groupId!, '')
+        : {};
+
     meetingMethods.removeMember(
         channelId: widget.channelName, member: widget.user);
     _engine.destroy();
@@ -159,11 +167,9 @@ class _CallPageState extends State<CallPage> {
       },
       leaveChannel: (stats) {
         setState(() {
-          
           _infoStrings.add('onLeaveChannel');
           meetingMethods.removeMember(
-              channelId: widget.channelName, member: widget.user
-              );
+              channelId: widget.channelName, member: widget.user);
           _users.clear();
         });
       },
@@ -227,9 +233,9 @@ class _CallPageState extends State<CallPage> {
       ),
       backgroundColor: Colors.black,
       body: Center(
-        child: Stack(
+        child: Column(
           children: <Widget>[
-            _viewRows(),
+            Expanded(child: _viewRows()),
             _toolbar(),
           ],
         ),
@@ -245,7 +251,7 @@ class _CallPageState extends State<CallPage> {
             body: Container(
               alignment: Alignment.center,
               child: CircleAvatar(
-                radius: 70,
+                radius: 60,
                 backgroundImage: NetworkImage(widget.user.photoURL!),
               ),
             ),
@@ -391,6 +397,7 @@ class _CallPageState extends State<CallPage> {
 
   Widget _toolbar() {
     return Container(
+      height: 140,
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Row(
@@ -483,7 +490,9 @@ class _CallPageState extends State<CallPage> {
     setState(() {
       videoMute = !videoMute;
     });
+    // _engine.disableVideo();
     _engine.enableLocalVideo(!videoMute);
+    // _engine.muteLocalVideoStream(videoMute);
   }
 
   void _onCallEnd(BuildContext context) {
@@ -548,10 +557,16 @@ class _CallPageState extends State<CallPage> {
                 leading: Icon(Icons.schedule),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return widget.groupId== null ? MeetingChat(
-                      channelId: widget.channelName,
-                      user: widget.user,
-                    ) : TeamMeetingChat( groupId: widget.groupId!, groupName: widget.groupName!, userName: widget.user.displayName!,) ;
+                    return widget.groupId == null
+                        ? MeetingChat(
+                            channelId: widget.channelName,
+                            user: widget.user,
+                          )
+                        : TeamMeetingChat(
+                            groupId: widget.groupId!,
+                            groupName: widget.groupName!,
+                            userName: widget.user.displayName!,
+                          );
                   }));
                 },
                 title: Text('Chat with anyone in the meeting'),
@@ -559,27 +574,56 @@ class _CallPageState extends State<CallPage> {
               Expanded(
                   child: ListTile(
                 subtitle: Text('Meetings Members audio'),
-                leading: allRemoteMuted ? Icon(Icons.mic_off) : Icon(Icons.mic),
+                leading: allRemoteMuted ? Icon(Icons.mic) : Icon(Icons.mic_off),
                 onTap: () {
                   _muteAllRemoteAudio();
                   Navigator.pop(context);
                 },
-                title: Text('receive/stop receiving all other audio streams'),
+                title: allRemoteMuted
+                    ? Text('Start receiving all other audio streams')
+                    : Text('stop receiving all other audio streams'),
               )),
               Expanded(
                   child: ListTile(
                 subtitle: Text('Meeting Members video'),
-                leading: allRemoteMuted
+                leading: allRemoteVideoMuted
                     ? Icon(Icons.video_camera_back)
                     : Icon(Icons.videocam_off),
                 onTap: () {
                   _muteAllRemoteVideoAudio();
                   Navigator.pop(context);
                 },
-                title: Text('receive/stop receiving all other video streams'),
+                title: allRemoteVideoMuted
+                    ? Text('Start receiving all other video streams')
+                    : Text('stop receiving all other video streams'),
+              )),
+              Expanded(
+                  child: ListTile(
+                subtitle: Text('Get the meeting code to share with others'),
+                leading: Icon(Icons.info),
+                onTap: () {
+                  Navigator.pop(context);
+                  shareMeetingCode(context, widget.channelName);
+                },
+                title: Text('Meeting Infomation'),
               )),
             ]),
           );
         });
+  }
+}
+
+class Custom extends StatefulWidget {
+  final widget;
+  Custom({this.widget});
+
+  @override
+  _CustomState createState() => _CustomState();
+}
+
+class _CustomState extends State<Custom> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.widget;
   }
 }

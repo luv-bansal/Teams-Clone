@@ -27,12 +27,13 @@ class _ChatwidgetState extends State<Chatwidget> {
   @override
   void initState() {
     super.initState();
-    teamsMethods.getChats(widget.groupId).then((val) {
-      // print(val);
-      setState(() {
-        _chats = val;
-      });
-    });
+    _chats = FirebaseFirestore.instance
+        .collection('Teams')
+        .doc(widget.groupId)
+        .collection('messages')
+        .orderBy('time')
+        .snapshots();
+
   }
 
   Widget _chatMessages() {

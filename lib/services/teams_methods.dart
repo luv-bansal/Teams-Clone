@@ -20,7 +20,8 @@ class TeamsMethods {
       //'messages': ,
       'groupId': '',
       'recentMessage': '',
-      'recentMessageSender': ''
+      'recentMessageSender': '',
+      'meetingCode': ''
     });
 
     await groupDocRef.update({
@@ -34,6 +35,17 @@ class TeamsMethods {
     });
   }
 
+  Future getMeetingCode(String groupId) async {
+    DocumentSnapshot data = await groupCollection.doc(groupId).get();
+    return (data.data() as Map<String, dynamic>);
+  }
+
+  Future<void> updateMeetingCode(String groupId, String meetingCode) async {
+    await groupCollection.doc(groupId).update(
+      {'meetingCode': meetingCode}
+    );
+  }
+
   // toggling the user group join
   Future<bool> teamJoin(
       String groupId, String groupName, String userName, String uid) async {
@@ -44,7 +56,7 @@ class TeamsMethods {
 
     List<dynamic> groups = await (userDocSnapshot.data() as Map)['groups'];
 
-    if ( groups == null || groups.contains(groupId + '_' + groupName) == false) {
+    if (groups == null || groups.contains(groupId + '_' + groupName) == false) {
       await userDocRef.update({
         'groups': FieldValue.arrayUnion([groupId + '_' + groupName])
       });

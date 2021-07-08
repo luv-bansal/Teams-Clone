@@ -12,8 +12,10 @@ class InstantMeeting extends StatefulWidget {
 }
 
 class _InstantMeetingState extends State<InstantMeeting> {
-  late final meeting_code;
+  late final meetingCode;
   User? currUser = FirebaseAuth.instance.currentUser;
+
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +29,10 @@ class _InstantMeetingState extends State<InstantMeeting> {
         style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white70),
       ),
       onTap: () async {
-        Navigator.pop(context);
-        meeting_code = getRandomString(10);
-        await onJoin(context, meeting_code);
+        
+        meetingCode = getRandomString(10);
+        await onJoin(context, meetingCode);
+        
       },
     );
   }
@@ -39,13 +42,13 @@ class _InstantMeetingState extends State<InstantMeeting> {
     print(status);
   }
 
-  Future<void> onJoin(context, String meeting_code) async {
+  Future<void> onJoin(context, String meetingCode) async {
 
-    Meeting meeting = Meeting(people: [], channelId: meeting_code);
+    Meeting meeting = Meeting(people: [], channelId: meetingCode);
 
     MeetingMethods meetingMethods = MeetingMethods();
     meetingMethods.makeCall(meeting: meeting);
-    meetingMethods.addMember(channelId: meeting_code, member: currUser!);
+    meetingMethods.addMember(channelId: meetingCode, member: currUser!);
 
     await _handleCameraAndMic(Permission.camera);
     await _handleCameraAndMic(Permission.microphone);    
@@ -54,7 +57,7 @@ class _InstantMeetingState extends State<InstantMeeting> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CallPage( userId: userid ,channelName: meeting_code, mic: 1, videoOn: 1,user: currUser!, ),
+          builder: (context) => CallPage( userId: userid ,channelName: meetingCode, mic: 1, videoOn: 1,user: currUser!, ),
         ));
   }
 

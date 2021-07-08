@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:teams_clone/models/meeting.dart';
 import 'package:teams_clone/screens/widgets/callingPage.dart';
 import 'package:teams_clone/services/meeting_methods.dart';
+import 'package:teams_clone/services/teams_methods.dart';
 import 'package:teams_clone/utils/utilities.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -13,7 +14,10 @@ class MicVideoSetting {
   MicVideoSetting({required this.mic, required this.videoOn});
 }
 
-Future showWidgitFunc(context, String meetingCode, User currUser, groupId, groupName) async {
+TeamsMethods teamsMethods = TeamsMethods();
+
+Future showWidgitFunc(
+    context, String meetingCode, User currUser, groupId, groupName) async {
   var settings = new MicVideoSetting(mic: 1, videoOn: 1);
   double width = MediaQuery.of(context).size.width;
   double height = MediaQuery.of(context).size.height;
@@ -49,7 +53,7 @@ Future showWidgitFunc(context, String meetingCode, User currUser, groupId, group
                       child: Text(
                         'Create a meeting',
                         style: TextStyle(
-                            fontSize: 26,
+                            fontSize: 23,
                             color: Colors.white,
                             fontWeight: FontWeight.w400),
                       ),
@@ -57,23 +61,7 @@ Future showWidgitFunc(context, String meetingCode, User currUser, groupId, group
                     SizedBox(
                       height: 10,
                     ),
-                    Container(
-                      width: width * 0.6,
-                      decoration: buttonDecoration,
-                      child: FlatButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await onJoin(
-                              context, meetingCode, settings.mic, settings.videoOn, currUser, groupId, groupName);
-                        },
-                        child: Text(
-                          'Join',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+                   
                     SizedBox(
                       height: 20,
                     ),
@@ -145,6 +133,30 @@ Future showWidgitFunc(context, String meetingCode, User currUser, groupId, group
                         ],
                       ),
                     ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                     Container(
+                      width: width * 0.5,
+                      decoration: buttonDecoration,
+                      child: FlatButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+
+                          teamsMethods.updateMeetingCode(groupId, meetingCode);
+
+                          await onJoin(context, meetingCode, settings.mic,
+                              settings.videoOn, currUser, groupId, groupName);
+                        },
+                        child: Text(
+                          'Join',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+      
                   ],
                 ),
               ),
@@ -159,8 +171,8 @@ Future<void> _handleCameraAndMic(Permission permission) async {
   print(status);
 }
 
-Future<void> onJoin(
-    context, String meeting_code, int mic, int videoOn, User currUser, String groupId, String groupName) async {
+Future<void> onJoin(context, String meeting_code, int mic, int videoOn,
+    User currUser, String groupId, String groupName) async {
   Meeting meeting = Meeting(people: [], channelId: meeting_code);
 
   MeetingMethods meetingMethods = MeetingMethods();
