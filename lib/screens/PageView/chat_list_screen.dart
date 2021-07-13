@@ -59,7 +59,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
         ],
       ),
       body: ChatListContainer(currUser!.uid),
-      floatingActionButton: NewChatButton(),
     );
   }
 }

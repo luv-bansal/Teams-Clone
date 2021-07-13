@@ -50,7 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   FontAwesomeIcons.google,
                   
                   ),
-                  Text('Google SignIn', style: TextStyle(fontWeight: FontWeight.bold),)
+                  Center(child: Text('Google SignIn', style: TextStyle(fontWeight: FontWeight.bold),))
                   ],
                 ),
               ),
