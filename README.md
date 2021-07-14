@@ -11,7 +11,7 @@
 - [Adopt Feature](#Adopt-feature)
 - [Download Apk](download_apk)
 - [How to use](use)
-- [Code structure](code_structure)
+- [Video Demo](video-demo)
  
 
 
@@ -167,6 +167,12 @@ Following features is implemented in Team:
 - Participants List: A user can anytime find out the name of all the people who are connected in videocall by simply clicking on this feature. 
 
 - Get redirected to the Home Page on leaving the room.
+
+
+## Video Demo
+Here is [video demo](https://drive.google.com/drive/folders/13ImrFXYdXeHB0qysAcysLX8-MlsZqEJ3?usp=sharing)  of this appication
+
+
 
 
 ## Resources
