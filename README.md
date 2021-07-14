@@ -1,9 +1,7 @@
 # Teams_clone
 
 
-A new Flutter project.
-
-![TeamsClone](assets\teams.jpg)
+  <img src="assets\teams.jpg" />
 
 ### **Sections**
 - [overview](#overview)
@@ -71,13 +69,14 @@ This made me keep track of my progress, and results in completion of project on 
 
 
 ## [Application architecture](https://app.milanote.com/1M2G191bRJXdcB?p=e05R4mmGAxX)
+
 Here is the overall architecture of Flutter application 
 
-![TeamsClone](assets\readme_images\main_architechture.png)
-
+  <img src="assets\readme_images\main_architechture.png" />
 
 ## Database Architecture
-![TeamsClone](assets\readme_images\export_canvas_firebase-firestore-database-210712_1355.png)
+
+  <img src="assets\readme_images\main_architechture.png" />
 
 ## Key Features
 - Onboarding Screen
@@ -106,14 +105,14 @@ On first time launching of application on the user's mobile. onBoard screen is l
 </p>
 
 ### **Google Authentication**
-![TeamsClone](assets\readme_images\export_canvas_authentication-210712_1233.png)
+  <img src="assets\readme_images\export_canvas_authentication-210712_1233.png" />
 
 
 ### **Individual Chat and video call**
-![TeamsClone](assets\readme_images\export_canvas_chat-screen-210712_1249.png)
+  <img src="assets\readme_images\export_canvas_chat-screen-210712_1249.png" />
 
 ### **Teams**
-![TeamsClone](assets\readme_images\export_canvas_teams-210712_0632.png)
+  <img src="assets\readme_images\export_canvas_teams-210712_0632.png" />
 
 ## Adopt
 
