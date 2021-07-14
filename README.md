@@ -108,6 +108,10 @@ On first time launching of application on the user's mobile. onBoard screen is l
   <img src="assets\readme_images\export_canvas_authentication-210712_1233.png" />
 
 
+### **Home Screen**
+
+   <img src="assets\home-screen-210714_0445.png" />
+
 ### **Individual Chat and video call**
   <img src="assets\readme_images\export_canvas_chat-screen-210712_1249.png" />
 
@@ -136,7 +140,7 @@ Following features is implemented in Team:
    
 
 
-**Following features are supported for the user during the video call:**
+## **Following features are supported for the user during the video call:**
 
 - Connect to two or more people through video call. 
 
