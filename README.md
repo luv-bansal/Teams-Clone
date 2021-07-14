@@ -169,10 +169,18 @@ Following features is implemented in Team:
 - Get redirected to the Home Page on leaving the room.
 
 
+## How to use
+- Install Flutter and related dependies in your system
+- Run Following comand in your terminal
+```bash
+flutter run --no-sound-null-safety
+```
+
+## Download APK
+Down the application APK [here](https://drive.google.com/drive/folders/1y_e7G1Unhn0Xr-zErecPNrHicA2j3dal?usp=sharing)
+
 ## Video Demo
 Here is [video demo](https://drive.google.com/drive/folders/13ImrFXYdXeHB0qysAcysLX8-MlsZqEJ3?usp=sharing)  of this appication
-
-
 
 
 ## Resources
